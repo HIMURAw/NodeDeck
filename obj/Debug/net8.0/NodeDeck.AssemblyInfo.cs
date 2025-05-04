@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("NodeDeck")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fb9ae6d6c834a3c430ec55c41fc750b364db5aeb")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9f04e71689d25b0605e5179c09673a00f0724829")]
 [assembly: System.Reflection.AssemblyProductAttribute("NodeDeck")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NodeDeck")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
