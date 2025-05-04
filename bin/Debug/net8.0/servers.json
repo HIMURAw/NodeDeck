@@ -1,0 +1,17 @@
+[
+  {
+    "Name": "Node 1",
+    "Address": "192.168.1.10",
+    "Status": 1
+  },
+  {
+    "Name": "Node 2",
+    "Address": "192.168.1.11",
+    "Status": 0
+  },
+  {
+    "Name": "test",
+    "Address": "test",
+    "Status": 1
+  }
+]

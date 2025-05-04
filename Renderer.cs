@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.IO;
+using System.Text.Json;
 using ClickableTransparentOverlay;
 using ImGuiNET;
 
@@ -14,11 +16,40 @@ namespace HellstromReign_Cheat
         private string newServerName = "";
         private string newServerAddress = "";
         private string addServerError = "";
+        private readonly string serverFile = "servers.json";
 
         public Renderer()
         {
-            servers.Add(new NodeServer { Name = "Node 1", Address = "192.168.1.10", Status = ServerStatus.Stopped });
-            servers.Add(new NodeServer { Name = "Node 2", Address = "192.168.1.11", Status = ServerStatus.Running });
+            LoadServers();
+        }
+
+        private void LoadServers()
+        {
+            try
+            {
+                if (File.Exists(serverFile))
+                {
+                    string json = File.ReadAllText(serverFile);
+                    var loaded = JsonSerializer.Deserialize<List<NodeServer>>(json);
+                    if (loaded != null)
+                        servers = loaded;
+                }
+                else
+                {
+                    SaveServers();
+                }
+            }
+            catch { }
+        }
+
+        private void SaveServers()
+        {
+            try
+            {
+                string json = JsonSerializer.Serialize(servers, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(serverFile, json);
+            }
+            catch { }
         }
 
         protected override void Render()
@@ -105,7 +136,10 @@ namespace HellstromReign_Cheat
                         ImGui.PushStyleColor(ImGuiCol.ButtonActive, accentBlueLight);
                         ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 8f);
                         if (ImGui.Button("Start Server", new Vector2(200, 48)))
+                        {
                             server.Status = ServerStatus.Running;
+                            SaveServers();
+                        }
                         ImGui.PopStyleVar();
                         ImGui.PopStyleColor(3);
                     }
@@ -116,7 +150,10 @@ namespace HellstromReign_Cheat
                         ImGui.PushStyleColor(ImGuiCol.ButtonActive, accentBlueLight);
                         ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 8f);
                         if (ImGui.Button("Stop Server", new Vector2(200, 48)))
+                        {
                             server.Status = ServerStatus.Stopped;
+                            SaveServers();
+                        }
                         ImGui.PopStyleVar();
                         ImGui.PopStyleColor(3);
                     }
@@ -129,6 +166,7 @@ namespace HellstromReign_Cheat
                     {
                         servers.RemoveAt(selectedServerIndex);
                         selectedServerIndex = -1;
+                        SaveServers();
                     }
                     ImGui.PopStyleVar();
                     ImGui.PopStyleColor(3);
@@ -167,6 +205,7 @@ namespace HellstromReign_Cheat
                             else
                             {
                                 servers.Add(new NodeServer { Name = newServerName, Address = newServerAddress, Status = ServerStatus.Stopped });
+                                SaveServers();
                                 showAddServerPopup = false;
                             }
                         }
