@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "A:\\Development\\C#\\NodeDeck\\NodeDeck\\NodeDeck.csproj": {}
+    "A:\\Development\\C#\\NodeDeck\\NodeDeck.csproj": {}
   },
   "projects": {
-    "A:\\Development\\C#\\NodeDeck\\NodeDeck\\NodeDeck.csproj": {
+    "A:\\Development\\C#\\NodeDeck\\NodeDeck.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "A:\\Development\\C#\\NodeDeck\\NodeDeck\\NodeDeck.csproj",
+        "projectUniqueName": "A:\\Development\\C#\\NodeDeck\\NodeDeck.csproj",
         "projectName": "NodeDeck",
-        "projectPath": "A:\\Development\\C#\\NodeDeck\\NodeDeck\\NodeDeck.csproj",
+        "projectPath": "A:\\Development\\C#\\NodeDeck\\NodeDeck.csproj",
         "packagesPath": "C:\\Users\\zamto\\.nuget\\packages\\",
-        "outputPath": "A:\\Development\\C#\\NodeDeck\\NodeDeck\\obj\\",
+        "outputPath": "A:\\Development\\C#\\NodeDeck\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -50,6 +50,12 @@
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
+          "dependencies": {
+            "ImGui.NET": {
+              "target": "Package",
+              "version": "[1.91.6.1, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",

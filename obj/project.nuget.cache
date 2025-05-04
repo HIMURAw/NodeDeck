@@ -1,8 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "HHZAbA2SMlc=",
+  "dgSpecHash": "DaEk/zyvpUE=",
   "success": true,
-  "projectFilePath": "A:\\Development\\C#\\NodeDeck\\NodeDeck\\NodeDeck.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "A:\\Development\\C#\\NodeDeck\\NodeDeck.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\zamto\\.nuget\\packages\\imgui.net\\1.91.6.1\\imgui.net.1.91.6.1.nupkg.sha512",
+    "C:\\Users\\zamto\\.nuget\\packages\\system.buffers\\4.5.1\\system.buffers.4.5.1.nupkg.sha512",
+    "C:\\Users\\zamto\\.nuget\\packages\\system.numerics.vectors\\4.5.0\\system.numerics.vectors.4.5.0.nupkg.sha512",
+    "C:\\Users\\zamto\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.0.0\\system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512"
+  ],
   "logs": []
 }
