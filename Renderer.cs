@@ -10,12 +10,18 @@ namespace HellstromReign_Cheat
 {
     internal class Renderer : Overlay
     {
-        public bool WebPanel = false;
-
         protected override void Render()
         {
-            ImGui.Begin("NodeDeck");
-            ImGui.Checkbox("Test", ref WebPanel);
+            if (ImGui.Begin("NodeDeck"))
+            {
+
+                ImGui.Text("Active Node Server");
+
+
+
+
+
+            }
             ImGui.End();
         }
     }
