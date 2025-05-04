@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Numerics;
 using ClickableTransparentOverlay;
 using ImGuiNET;
 
@@ -12,146 +10,178 @@ namespace HellstromReign_Cheat
     {
         private List<NodeServer> servers = new List<NodeServer>();
         private int selectedServerIndex = -1;
+        private bool showAddServerPopup = false;
         private string newServerName = "";
         private string newServerAddress = "";
-        private bool showAddServerPopup = false;
+        private string addServerError = "";
 
         public Renderer()
         {
-            servers.Add(new NodeServer { Name = "Pixeldev1", Address = "192.168.1.100", Status = ServerStatus.Online });
-            servers.Add(new NodeServer { Name = "Pixeldev2", Address = "192.168.1.101", Status = ServerStatus.Offline });
-            servers.Add(new NodeServer { Name = "Pixeldev3", Address = "192.168.1.102", Status = ServerStatus.Maintenance });
+            servers.Add(new NodeServer { Name = "Node 1", Address = "192.168.1.10", Status = ServerStatus.Stopped });
+            servers.Add(new NodeServer { Name = "Node 2", Address = "192.168.1.11", Status = ServerStatus.Running });
         }
 
         protected override void Render()
         {
             var io = ImGui.GetIO();
             var screenSize = io.DisplaySize;
-            var screenResolution = new System.Numerics.Vector2(screenSize.X, screenSize.Y);
+            var screenResolution = new Vector2(screenSize.X, screenSize.Y);
 
-            ImGui.SetNextWindowPos(new System.Numerics.Vector2(0, 0));
-            ImGui.SetNextWindowSize(screenResolution);
+            // Tema renkleri
+            var bgBlack = new Vector4(0.07f, 0.09f, 0.13f, 1.0f);
+            var cardBlue = new Vector4(0.13f, 0.18f, 0.28f, 1.0f);
+            var accentBlue = new Vector4(0.23f, 0.56f, 0.95f, 1.0f);
+            var accentBlueLight = new Vector4(0.35f, 0.65f, 1.0f, 1.0f);
+            var textGray = new Vector4(0.85f, 0.90f, 1.0f, 1.0f);
+            var textDark = new Vector4(0.55f, 0.60f, 0.70f, 1.0f);
 
-            if (ImGui.Begin("NodeDeck",
-                ImGuiWindowFlags.NoResize |
-                ImGuiWindowFlags.NoMove |
-                ImGuiWindowFlags.NoTitleBar |
-                ImGuiWindowFlags.NoCollapse |
-                ImGuiWindowFlags.NoBringToFrontOnFocus))
+            ImGui.PushStyleColor(ImGuiCol.WindowBg, bgBlack);
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 12f);
+            if (ImGui.Begin("Node Server Manager", ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoBringToFrontOnFocus))
             {
-                ImGui.PushStyleColor(ImGuiCol.Text, new System.Numerics.Vector4(0.2f, 0.6f, 1.0f, 1.0f));
-                ImGui.SetCursorPosX((ImGui.GetWindowWidth() - ImGui.CalcTextSize("Node Server Manager").X) * 0.5f);
-                ImGui.Text("Node Server Manager");
+                ImGui.PopStyleVar();
                 ImGui.PopStyleColor();
+                ImGui.Columns(2, "MainColumns", false);
+                // Sidebar - Server List
+                ImGui.BeginChild("Sidebar", new Vector2(240, 0));
+                ImGui.PushStyleColor(ImGuiCol.ChildBg, cardBlue);
+                ImGui.PushStyleVar(ImGuiStyleVar.ChildRounding, 10f);
+                ImGui.SetCursorPosY(18);
+                ImGui.TextColored(accentBlue, "Node Servers");
+                ImGui.Spacing();
                 ImGui.Separator();
-
-                ImGui.Columns(2, "ServerColumns", true);
-
-                ImGui.BeginChild("ServerList", new System.Numerics.Vector2(ImGui.GetColumnWidth(), 0));
-
-                if (ImGui.Button("+ Add New Server", new System.Numerics.Vector2(ImGui.GetColumnWidth(), 30)))
-                {
-                    showAddServerPopup = true;
-                }
-                ImGui.Separator();
-
+                ImGui.Spacing();
                 for (int i = 0; i < servers.Count; i++)
                 {
                     var server = servers[i];
-                    bool isSelected = (selectedServerIndex == i);
-
-                    ImGui.PushStyleColor(ImGuiCol.Text, GetStatusColor(server.Status));
-
-                    if (ImGui.Selectable($"{server.Name}##{i}", isSelected))
-                    {
+                    Vector4 color = server.Status == ServerStatus.Running ? accentBlueLight : new Vector4(1.0f, 0.3f, 0.3f, 1.0f);
+                    ImGui.PushStyleColor(ImGuiCol.Text, color);
+                    ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 8f);
+                    if (ImGui.Selectable($"{server.Name}##{i}", selectedServerIndex == i, ImGuiSelectableFlags.None, new Vector2(200, 36)))
                         selectedServerIndex = i;
-                    }
-
+                    ImGui.PopStyleVar();
                     ImGui.PopStyleColor();
+                    ImGui.Spacing();
                 }
+                ImGui.Spacing();
+                ImGui.Spacing();
+                ImGui.PushStyleColor(ImGuiCol.Button, accentBlue);
+                ImGui.PushStyleColor(ImGuiCol.ButtonHovered, accentBlueLight);
+                ImGui.PushStyleColor(ImGuiCol.ButtonActive, accentBlueLight);
+                ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 8f);
+                if (ImGui.Button("+ Add Server", new Vector2(200, 36)))
+                {
+                    showAddServerPopup = true;
+                    newServerName = "";
+                    newServerAddress = "";
+                    addServerError = "";
+                }
+                ImGui.PopStyleVar();
+                ImGui.PopStyleColor(3);
+                ImGui.PopStyleVar();
+                ImGui.PopStyleColor();
                 ImGui.EndChild();
-
                 ImGui.NextColumn();
-
-                ImGui.BeginChild("ServerDetails", new System.Numerics.Vector2(0, 0));
+                // Main Content - Server Details
+                ImGui.BeginChild("MainContent", new Vector2(0, 0));
+                ImGui.SetCursorPosY(30);
+                ImGui.PushStyleColor(ImGuiCol.ChildBg, cardBlue);
+                ImGui.PushStyleVar(ImGuiStyleVar.ChildRounding, 12f);
+                ImGui.BeginChild("ServerDetails", new Vector2(380, 420));
                 if (selectedServerIndex >= 0 && selectedServerIndex < servers.Count)
                 {
-                    var selectedServer = servers[selectedServerIndex];
-
-                    ImGui.Text($"Server Name: {selectedServer.Name}");
-                    ImGui.Text($"Address: {selectedServer.Address}");
-                    ImGui.Text($"Status: {selectedServer.Status}");
-
+                    var server = servers[selectedServerIndex];
+                    ImGui.TextColored(accentBlue, $"{server.Name}");
+                    ImGui.Spacing(); ImGui.Spacing();
+                    ImGui.TextColored(textGray, $"Address: {server.Address}");
                     ImGui.Spacing();
+                    ImGui.TextColored(textGray, $"Status: {(server.Status == ServerStatus.Running ? "Running" : "Stopped")}");
+                    ImGui.Spacing(); ImGui.Spacing();
 
-                    if (ImGui.Button("Start Server", new System.Numerics.Vector2(120, 30)))
+                    if (server.Status == ServerStatus.Stopped)
                     {
+                        ImGui.PushStyleColor(ImGuiCol.Button, accentBlue);
+                        ImGui.PushStyleColor(ImGuiCol.ButtonHovered, accentBlueLight);
+                        ImGui.PushStyleColor(ImGuiCol.ButtonActive, accentBlueLight);
+                        ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 8f);
+                        if (ImGui.Button("Start Server", new Vector2(200, 48)))
+                            server.Status = ServerStatus.Running;
+                        ImGui.PopStyleVar();
+                        ImGui.PopStyleColor(3);
+                    }
+                    else
+                    {
+                        ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.2f, 0.3f, 0.5f, 1.0f));
+                        ImGui.PushStyleColor(ImGuiCol.ButtonHovered, accentBlueLight);
+                        ImGui.PushStyleColor(ImGuiCol.ButtonActive, accentBlueLight);
+                        ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 8f);
+                        if (ImGui.Button("Stop Server", new Vector2(200, 48)))
+                            server.Status = ServerStatus.Stopped;
+                        ImGui.PopStyleVar();
+                        ImGui.PopStyleColor(3);
                     }
                     ImGui.SameLine();
-                    if (ImGui.Button("Stop Server", new System.Numerics.Vector2(120, 30)))
-                    {
-                    }
-                    ImGui.SameLine();
-                    if (ImGui.Button("Delete Server"))
+                    ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(1.0f, 0.2f, 0.2f, 1.0f));
+                    ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(1.0f, 0.4f, 0.4f, 1.0f));
+                    ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(1.0f, 0.6f, 0.6f, 1.0f));
+                    ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 8f);
+                    if (ImGui.Button("Delete Server", new Vector2(200, 48)))
                     {
                         servers.RemoveAt(selectedServerIndex);
                         selectedServerIndex = -1;
                     }
+                    ImGui.PopStyleVar();
+                    ImGui.PopStyleColor(3);
                 }
                 else
                 {
-                    ImGui.Text("Select a server to view details");
+                    ImGui.TextColored(textDark, "Select a server to view details.");
                 }
                 ImGui.EndChild();
-
-                ImGui.Columns(1);
-
+                ImGui.PopStyleVar();
+                ImGui.PopStyleColor();
+                ImGui.EndChild();
+                // Add Server Popup
                 if (showAddServerPopup)
                 {
-                    ImGui.OpenPopup("Add New Server");
-                    if (ImGui.BeginPopupModal("Add New Server", ref showAddServerPopup))
+                    ImGui.OpenPopup("Add Server");
+                    if (ImGui.BeginPopupModal("Add Server", ref showAddServerPopup, ImGuiWindowFlags.AlwaysAutoResize))
                     {
                         ImGui.InputText("Server Name", ref newServerName, 100);
                         ImGui.InputText("Server Address", ref newServerAddress, 100);
-
-                        if (ImGui.Button("Add"))
+                        if (!string.IsNullOrEmpty(addServerError))
                         {
-                            if (!string.IsNullOrEmpty(newServerName) && !string.IsNullOrEmpty(newServerAddress))
+                            ImGui.TextColored(new Vector4(1, 0.2f, 0.2f, 1), addServerError);
+                        }
+                        ImGui.Spacing();
+                        ImGui.PushStyleColor(ImGuiCol.Button, accentBlue);
+                        ImGui.PushStyleColor(ImGuiCol.ButtonHovered, accentBlueLight);
+                        ImGui.PushStyleColor(ImGuiCol.ButtonActive, accentBlueLight);
+                        ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 8f);
+                        if (ImGui.Button("Add", new Vector2(120, 32)))
+                        {
+                            if (string.IsNullOrWhiteSpace(newServerName) || string.IsNullOrWhiteSpace(newServerAddress))
                             {
-                                servers.Add(new NodeServer
-                                {
-                                    Name = newServerName,
-                                    Address = newServerAddress,
-                                    Status = ServerStatus.Offline
-                                });
-                                newServerName = "";
-                                newServerAddress = "";
+                                addServerError = "Name and address required!";
+                            }
+                            else
+                            {
+                                servers.Add(new NodeServer { Name = newServerName, Address = newServerAddress, Status = ServerStatus.Stopped });
                                 showAddServerPopup = false;
                             }
                         }
-
                         ImGui.SameLine();
-                        if (ImGui.Button("Cancel"))
+                        if (ImGui.Button("Cancel", new Vector2(120, 32)))
                         {
                             showAddServerPopup = false;
                         }
-
+                        ImGui.PopStyleVar();
+                        ImGui.PopStyleColor(3);
                         ImGui.EndPopup();
                     }
                 }
             }
             ImGui.End();
-        }
-
-        private System.Numerics.Vector4 GetStatusColor(ServerStatus status)
-        {
-            return status switch
-            {
-                ServerStatus.Online => new System.Numerics.Vector4(0.0f, 1.0f, 0.0f, 1.0f),
-                ServerStatus.Offline => new System.Numerics.Vector4(1.0f, 0.0f, 0.0f, 1.0f),
-                ServerStatus.Maintenance => new System.Numerics.Vector4(1.0f, 0.5f, 0.0f, 1.0f),
-                _ => new System.Numerics.Vector4(1.0f, 1.0f, 1.0f, 1.0f)
-            };
         }
     }
 
@@ -164,8 +194,7 @@ namespace HellstromReign_Cheat
 
     public enum ServerStatus
     {
-        Online,
-        Offline,
-        Maintenance
+        Running,
+        Stopped
     }
 }
